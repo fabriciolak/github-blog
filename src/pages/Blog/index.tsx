@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import { api } from '../../lib/axios'
 import { Card } from './components/Card'
@@ -56,7 +57,7 @@ export function Blog() {
     })
   }, [])
 
-  const searchIssue = useCallback(async () => {
+  const loadIssuesFromRepo = useCallback(async () => {
     const { data } = await api.get<GithubData>(
       '/search/issues?q=repo:fabriciolak/github-blog',
     )
@@ -71,15 +72,41 @@ export function Blog() {
     )
   }, [])
 
+  const [searchParams, _] = useSearchParams()
+  const search = searchParams.get('search')
+
+  console.log(search)
+
+  const loadIssuesFromParams = useCallback(async () => {
+    const { data } = await api.get<GithubData>(
+      `/search/issues?q=${search}?repo:fabriciolak/github-blog`,
+    )
+
+    setIssues(
+      data.items.map((issue) => ({
+        ...issue,
+        id: issue.id,
+        number: issue.number,
+        createdAt: new Date(issue.created_at),
+      })),
+    )
+  }, [search])
+
   useEffect(() => {
-    searchIssue()
+    if (search) {
+      loadIssuesFromParams()
+    } else {
+      loadIssuesFromRepo()
+    }
+
     searchProfile()
-  }, [searchIssue, searchProfile])
+  }, [loadIssuesFromRepo, searchProfile, loadIssuesFromParams, search])
 
   return (
     <BlogContainer>
       <Profile {...profile} />
-      <SearchForm />
+
+      <SearchForm comments={issues.length} />
 
       <CardGrid>
         {issues.map((item) => (
