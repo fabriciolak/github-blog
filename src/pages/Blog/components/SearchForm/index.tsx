@@ -1,6 +1,4 @@
-import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { useSearchParams } from 'react-router-dom'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -19,28 +17,20 @@ type SearchInputType = z.infer<typeof searchInputSchema>
 
 interface SearchFormProps {
   comments: number
+  searchPost: (query?: string) => Promise<void>
 }
 
-export function SearchForm({ comments }: SearchFormProps) {
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  const searchQuery = searchParams.get('search') || ''
-
-  const { register, watch } = useForm<SearchInputType>({
+export function SearchForm({ comments, searchPost }: SearchFormProps) {
+  const { register, handleSubmit } = useForm<SearchInputType>({
     resolver: zodResolver(searchInputSchema),
-    defaultValues: {
-      query: searchQuery,
-    },
   })
 
-  const search = watch('query')
-
-  useEffect(() => {
-    setSearchParams({ search })
-  }, [setSearchParams, search])
+  async function handleSearchPost(data: SearchInputType) {
+    await searchPost(data.query)
+  }
 
   return (
-    <SearchFormContainer>
+    <SearchFormContainer onSubmit={handleSubmit(handleSearchPost)}>
       <SearchFormHeader>
         <h2>Publicações</h2>
         <p>
