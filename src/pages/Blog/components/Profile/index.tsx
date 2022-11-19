@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 import {
   faArrowUpRightFromSquare,
@@ -27,7 +29,7 @@ interface ProfileProps {
   bio?: string
 }
 
-export function Profile({
+function ProfileComponent({
   login,
   avatarUrl,
   bio,
@@ -66,3 +68,5 @@ export function Profile({
     </ProfileContainer>
   )
 }
+
+export const Profile = memo(ProfileComponent)

@@ -89,8 +89,7 @@ export function Blog() {
   useEffect(() => {
     searchProfile()
     loadIssuesFromRepo()
-    searchPost()
-  }, [loadIssuesFromRepo, searchProfile, searchPost])
+  }, [loadIssuesFromRepo, searchProfile])
 
   return (
     <BlogContainer>
