@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
 
 import { api } from '../../lib/axios'
 import { Card } from './components/Card'
@@ -72,14 +71,9 @@ export function Blog() {
     )
   }, [])
 
-  const [searchParams, _] = useSearchParams()
-  const search = searchParams.get('search')
-
-  console.log(search)
-
-  const loadIssuesFromParams = useCallback(async () => {
+  const searchPost = useCallback(async (query: string = '') => {
     const { data } = await api.get<GithubData>(
-      `/search/issues?q=${search}?repo:fabriciolak/github-blog`,
+      `/search/issues?q=${query}?repo:fabriciolak/github-blog`,
     )
 
     setIssues(
@@ -90,23 +84,19 @@ export function Blog() {
         createdAt: new Date(issue.created_at),
       })),
     )
-  }, [search])
+  }, [])
 
   useEffect(() => {
-    if (search) {
-      loadIssuesFromParams()
-    } else {
-      loadIssuesFromRepo()
-    }
-
     searchProfile()
-  }, [loadIssuesFromRepo, searchProfile, loadIssuesFromParams, search])
+    loadIssuesFromRepo()
+    searchPost()
+  }, [loadIssuesFromRepo, searchProfile, searchPost])
 
   return (
     <BlogContainer>
       <Profile {...profile} />
 
-      <SearchForm comments={issues.length} />
+      <SearchForm searchPost={searchPost} comments={issues.length} />
 
       <CardGrid>
         {issues.map((item) => (
